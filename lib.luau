@@ -36,12 +36,106 @@ local function GetRoot()
 	return GetChar():FindFirstChild("HumanoidRootPart")
 end
 
-local function Notify(title, text, Time)
-	SGui:SetCore("SendNotification", {
-		Title = title,
-		Text = text,
-		Duration = Time
-	})
+local function Notify(title, text, duration)
+	duration = duration or 3
+	local CoreGui = Alc.CoreGui
+	local TweenService = game:GetService("TweenService")
+
+	-- Notification container
+	local NotifyGui = Instance.new("ScreenGui")
+	NotifyGui.Name = "Notify"
+	NotifyGui.Parent = CoreGui
+	NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+	NotifyGui.IgnoreGuiInset = true
+
+	-- Main frame
+	local Frame = Instance.new("Frame")
+	Frame.Parent = NotifyGui
+	Frame.AnchorPoint = Vector2.new(0.5, 0)
+	Frame.Position = UDim2.new(0.5, 0, 0.08, 0)
+	Frame.Size = UDim2.new(0, 320, 0, 70)
+	Frame.BackgroundColor3 = Color3.fromRGB(23, 23, 23)
+	Frame.BackgroundTransparency = 0.2
+	Frame.BorderSizePixel = 0
+	Frame.ClipsDescendants = true
+
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0, 8)
+	UICorner.Parent = Frame
+
+	local UIStroke = Instance.new("UIStroke")
+	UIStroke.Color = Color3.fromRGB(5,188,244)
+	UIStroke.Thickness = 2
+	UIStroke.Transparency = 0.2
+	UIStroke.Parent = Frame
+
+	local UIGradient = Instance.new("UIGradient")
+	UIGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Alc.Config.MainColor),
+		ColorSequenceKeypoint.new(0.5, Alc.Config.DropColor),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 235, 255))
+	}
+	UIGradient.Rotation = 90
+	UIGradient.Parent = Frame
+
+	-- Title
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.Parent = Frame
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Position = UDim2.new(0.05, 0, 0.08, 0)
+	TitleLabel.Size = UDim2.new(0.9, 0, 0.35, 0)
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.Text = tostring(title)
+	TitleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+	TitleLabel.TextScaled = true
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Description
+	local DescLabel = Instance.new("TextLabel")
+	DescLabel.Parent = Frame
+	DescLabel.BackgroundTransparency = 1
+	DescLabel.Position = UDim2.new(0.05, 0, 0.45, 0)
+	DescLabel.Size = UDim2.new(0.9, 0, 0.45, 0)
+	DescLabel.Font = Enum.Font.Gotham
+	DescLabel.Text = tostring(text)
+	DescLabel.TextColor3 = Color3.fromRGB(200, 230, 255)
+	DescLabel.TextScaled = true
+	DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+	DescLabel.TextTransparency = 0.2
+
+	-- Icon (optional, left side)
+	local Icon = Instance.new("ImageLabel")
+	Icon.Parent = Frame
+	Icon.BackgroundTransparency = 1
+	Icon.Position = UDim2.new(0, 8, 0.5, -16)
+	Icon.Size = UDim2.new(0, 32, 0, 32)
+	Icon.Image = "rbxassetid://7734052925"
+	Icon.ImageColor3 = Alc.Config.DropColor
+	Icon.ZIndex = 2
+
+	-- Drop shadow
+	local DropShadow = Instance.new("ImageLabel")
+	DropShadow.Parent = Frame
+	DropShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	DropShadow.Position = UDim2.new(0.5, 0, 0.5, 2)
+	DropShadow.Size = UDim2.new(1, 24, 1, 24)
+	DropShadow.BackgroundTransparency = 1
+	DropShadow.Image = "rbxassetid://6015897843"
+	DropShadow.ImageColor3 = Color3.fromRGB(0,0,0)
+	DropShadow.ImageTransparency = 0.7
+	DropShadow.ZIndex = 0
+
+	-- Animate in
+	Frame.Position = UDim2.new(0.5, 0, 0, -80)
+	TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0.08, 0)}):Play()
+
+	-- Animate out after duration
+	task.spawn(function()
+		task.wait(duration)
+		TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0, -80)}):Play()
+		task.wait(0.45)
+		NotifyGui:Destroy()
+	end)
 end
 
 --------------------------------------------------------------------------------------
