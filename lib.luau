@@ -36,113 +36,6 @@ local function GetRoot()
 	return GetChar():FindFirstChild("HumanoidRootPart")
 end
 
-function Alc:Notify(title, text, duration)
-    duration = duration or 3
-    local CoreGui = self.CoreGui
-    local TweenService = game:GetService("TweenService")
-
-    -- Notification container
-    local NotifyGui = Instance.new("ScreenGui")
-    NotifyGui.Name = "Notify_" .. HttpService:GenerateGUID(false)
-    NotifyGui.Parent = CoreGui
-    NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-    NotifyGui.IgnoreGuiInset = true
-    NotifyGui.ResetOnSpawn = false
-
-    -- Main frame
-    local Frame = Instance.new("Frame")
-    Frame.Parent = NotifyGui
-    Frame.AnchorPoint = Vector2.new(0.5, 0)
-    Frame.Position = UDim2.new(0.5, 0, 0.08, 0)
-    Frame.Size = UDim2.new(0, 320, 0, 70)
-    Frame.BackgroundColor3 = Color3.fromRGB(23, 23, 23)
-    Frame.BackgroundTransparency = 0.2
-    Frame.BorderSizePixel = 0
-    Frame.ClipsDescendants = true
-
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 8)
-    UICorner.Parent = Frame
-
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Color = Color3.fromRGB(5, 188, 244)
-    UIStroke.Thickness = 2
-    UIStroke.Transparency = 0.2
-    UIStroke.Parent = Frame
-
-    local UIGradient = Instance.new("UIGradient")
-    UIGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, self.Config.MainColor),
-        ColorSequenceKeypoint.new(0.5, self.Config.DropColor),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 235, 255))
-    }
-    UIGradient.Rotation = 90
-    UIGradient.Parent = Frame
-
-    -- Title
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Parent = Frame
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Position = UDim2.new(0.05, 0, 0.08, 0)
-    TitleLabel.Size = UDim2.new(0.9, 0, 0.35, 0)
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.Text = tostring(title)
-    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.TextScaled = true
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-    -- Description
-    local DescLabel = Instance.new("TextLabel")
-    DescLabel.Parent = Frame
-    DescLabel.BackgroundTransparency = 1
-    DescLabel.Position = UDim2.new(0.05, 0, 0.45, 0)
-    DescLabel.Size = UDim2.new(0.9, 0, 0.45, 0)
-    DescLabel.Font = Enum.Font.Gotham
-    DescLabel.Text = tostring(text)
-    DescLabel.TextColor3 = Color3.fromRGB(200, 230, 255)
-    DescLabel.TextScaled = true
-    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
-    DescLabel.TextTransparency = 0.2
-
-    -- Icon
-    local Icon = Instance.new("ImageLabel")
-    Icon.Parent = Frame
-    Icon.BackgroundTransparency = 1
-    Icon.Position = UDim2.new(0, 8, 0.5, -16)
-    Icon.Size = UDim2.new(0, 32, 0, 32)
-    Icon.Image = "rbxassetid://7734052925"
-    Icon.ImageColor3 = self.Config.DropColor
-    Icon.ZIndex = 2
-
-    -- Drop shadow
-    local DropShadow = Instance.new("ImageLabel")
-    DropShadow.Parent = Frame
-    DropShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-    DropShadow.Position = UDim2.new(0.5, 0, 0.5, 2)
-    DropShadow.Size = UDim2.new(1, 24, 1, 24)
-    DropShadow.BackgroundTransparency = 1
-    DropShadow.Image = "rbxassetid://6015897843"
-    DropShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    DropShadow.ImageTransparency = 0.7
-    DropShadow.ZIndex = 0
-
-    -- Animate in
-    Frame.Position = UDim2.new(0.5, 0, 0, -80)
-    local tweenIn = TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0.08, 0)})
-    tweenIn:Play()
-
-    -- Animate out after duration
-    task.spawn(function()
-        task.wait(duration)
-        local tweenOut = TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0, -80)})
-        tweenOut:Play()
-        tweenOut.Completed:Connect(function()
-            NotifyGui:Destroy()
-        end)
-    end)
-    
-    return NotifyGui
-end
 
 --------------------------------------------------------------------------------------
 local UIConfig = {
@@ -161,6 +54,213 @@ local Alc = {
 	Windows = {},
 }
 
+
+function Alc:NewNotify()
+	local Notification = Instance.new("ScreenGui")
+	local NotifyContainer = Instance.new("Frame")
+	local UIListLayout = Instance.new("UIListLayout")
+
+	Notification.Name = "AlcNotification"
+	Notification.Parent = Alc.CoreGui
+	Notification.ResetOnSpawn = false
+	Notification.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+	NotifyContainer.Name = "NotifyContainer"
+	NotifyContainer.Parent = Notification
+	NotifyContainer.AnchorPoint = Vector2.new(1, 0)
+	NotifyContainer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	NotifyContainer.BackgroundTransparency = 1.000
+	NotifyContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	NotifyContainer.BorderSizePixel = 0
+	NotifyContainer.Position = UDim2.new(1, -10, 0, 1)
+	NotifyContainer.Size = UDim2.new(0, 100, 0, 100)
+
+	UIListLayout.Parent = NotifyContainer
+	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.Padding = UDim.new(0, 3)
+
+	local LayoutREF = 0;
+
+	return {
+		new = function(Notify)
+			Notify = {
+				Icon = Notify.Icon or '0',
+				Title = Notify.Title or "Notification",
+				Content = Notify.Content or "Content",
+				Duration = Notify.Duration or 5,
+			}
+
+			LayoutREF -= 5;
+
+			local BlockFrame = Instance.new("Frame")
+			local NotifyFrame = Instance.new("Frame")
+			local UICorner = Instance.new("UICorner")
+			local CompLogo = Instance.new("ImageLabel")
+			local Header = Instance.new("TextLabel")
+			local Body = Instance.new("TextLabel")
+			local TimeLeftFrame = Instance.new("Frame")
+			local UICorner_2 = Instance.new("UICorner")
+			local TimeLeft = Instance.new("Frame")
+			local UICorner_3 = Instance.new("UICorner")
+
+			BlockFrame.Name = "BlockFrame"
+			BlockFrame.Parent = NotifyContainer
+			BlockFrame.AnchorPoint = Vector2.new(1, 0)
+			BlockFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			BlockFrame.BackgroundTransparency = 1.000
+			BlockFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			BlockFrame.BorderSizePixel = 0
+			BlockFrame.ClipsDescendants = false
+			BlockFrame.Size = UDim2.new(0, 200, 0, 0)
+			BlockFrame.LayoutOrder = LayoutREF;
+
+			NotifyFrame.Name = "NotifyFrame"
+			NotifyFrame.Parent = BlockFrame
+			NotifyFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			NotifyFrame.BackgroundTransparency = 0.3
+			NotifyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			NotifyFrame.BorderSizePixel = 0
+			NotifyFrame.ClipsDescendants = false
+			NotifyFrame.Size = UDim2.new(1, 0, 1, -5)
+			NotifyFrame.ZIndex = 2
+			NotifyFrame.Position = UDim2.new(1,200,0,0)
+
+			UICorner.CornerRadius = UDim.new(0, 4)
+			UICorner.Parent = NotifyFrame
+
+			CompLogo.Name = "CompLogo"
+			CompLogo.Parent = NotifyFrame
+			CompLogo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			CompLogo.BackgroundTransparency = 1.000
+			CompLogo.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			CompLogo.BorderSizePixel = 0
+			CompLogo.Position = UDim2.new(0, 6, 0, 6)
+			CompLogo.Size = UDim2.new(0, 25, 0, 25)
+			CompLogo.ZIndex = 4
+			CompLogo.Image = Notify.Icon
+
+			Header.Name = "Header"
+			Header.Parent = NotifyFrame
+			Header.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Header.BackgroundTransparency = 1.000
+			Header.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Header.BorderSizePixel = 0
+			Header.Position = UDim2.new(0, 40, 0, 10)
+			Header.Size = UDim2.new(1, -50, 0, 15)
+			Header.ZIndex = 3
+			Header.Font = Enum.Font.GothamBold
+			Header.Text = Notify.Title
+			Header.TextColor3 = Color3.fromRGB(5,188,244) -- Using your UI's blue color
+			Header.TextSize = 14.000
+			Header.TextXAlignment = Enum.TextXAlignment.Left
+
+			Body.Name = "Body"
+			Body.Parent = NotifyFrame
+			Body.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			Body.BackgroundTransparency = 1.000
+			Body.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			Body.BorderSizePixel = 0
+			Body.Position = UDim2.new(0, 10, 0, 33)
+			Body.Size = UDim2.new(1, -15, 0, 30)
+			Body.ZIndex = 3
+			Body.Font = Enum.Font.GothamMedium
+			Body.Text = Notify.Content
+			Body.TextColor3 = Color3.fromRGB(255, 255, 255)
+			Body.TextSize = 12.000
+			Body.TextTransparency = 0.500
+			Body.TextXAlignment = Enum.TextXAlignment.Left
+			Body.TextYAlignment = Enum.TextYAlignment.Top
+
+			TimeLeftFrame.Name = "TimeLeftFrame"
+			TimeLeftFrame.Parent = NotifyFrame
+			TimeLeftFrame.AnchorPoint = Vector2.new(0, 1)
+			TimeLeftFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			TimeLeftFrame.BackgroundTransparency = 1.000
+			TimeLeftFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			TimeLeftFrame.BorderSizePixel = 0
+			TimeLeftFrame.Position = UDim2.new(0, 0, 1, 1)
+			TimeLeftFrame.Size = UDim2.new(1, 0, 0, 5)
+			TimeLeftFrame.ZIndex = 5
+
+			UICorner_2.CornerRadius = UDim.new(0, 4)
+			UICorner_2.Parent = TimeLeftFrame
+
+			TimeLeft.Name = "TimeLeft"
+			TimeLeft.Parent = TimeLeftFrame
+			TimeLeft.BackgroundColor3 = Color3.fromRGB(5,188,244) -- Using your UI's blue color
+			TimeLeft.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			TimeLeft.BorderSizePixel = 0
+			TimeLeft.Size = UDim2.new(0, 0, 1, 0)
+			TimeLeft.ZIndex = 5
+
+			UICorner_3.CornerRadius = UDim.new(0, 1)
+			UICorner_3.Parent = TimeLeft
+
+			local UpdateText = function()
+				local TitleScale = TextService:GetTextSize(Header.Text,Header.TextSize,Header.Font,Vector2.new(math.huge,math.huge));
+				local BodyScale = TextService:GetTextSize(Body.Text,Body.TextSize,Body.Font,Vector2.new(math.huge,math.huge));
+
+				local MainX = (TitleScale.X >= BodyScale.X and TitleScale.X) or BodyScale.X;
+				local MainY = TitleScale.Y + ((Body.Text:byte() and BodyScale.Y) or 1);
+
+				if BlockFrame:GetAttribute('Already') then
+					TweenService:Create(BlockFrame,TweenInfo.new(0.3),{
+						Size = UDim2.new(0,MainX + 75,0,MainY + 35)
+					}):Play()
+				else
+					BlockFrame:SetAttribute('Already',true)
+					BlockFrame.Size = UDim2.new(0, MainX + 45, 0, 0);
+
+					TweenService:Create(BlockFrame,TweenInfo.new(0.3),{
+						Size = UDim2.new(0,MainX + 75,0,MainY + 35)
+					}):Play()
+				end;
+			end;
+
+			UpdateText();
+
+			local Close = function()
+				TweenService:Create(NotifyFrame,TweenInfo.new(0.65,Enum.EasingStyle.Quint),{
+					Position = UDim2.new(1,200,0,0)
+				}):Play()
+
+				task.wait(0.3);
+
+				TweenService:Create(BlockFrame,TweenInfo.new(0.3),{
+					Size = UDim2.new(1,0,0,0)
+				}):Play()
+
+				task.wait(0.35)
+				BlockFrame:Destroy();
+			end;
+
+			local Show = function()
+				TweenService:Create(NotifyFrame,TweenInfo.new(0.5,Enum.EasingStyle.Quint),{
+					Position = UDim2.new(0,0,0,0)
+				}):Play()
+			end;
+
+			if typeof(Notify.Duration) == 'number' and Notify.Duration ~= math.huge then
+				TweenService:Create(TimeLeft,TweenInfo.new(Notify.Duration + 0.2,Enum.EasingStyle.Linear),{
+					Size = UDim2.new(1, 0, 1, 0)
+				}):Play()
+
+				task.delay(0.25,function()
+					Show();
+					task.delay(Notify.Duration + 0.2,Close)
+				end)
+			end;
+			
+			return {
+				Close = Close
+			}
+		end
+	}
+end
+
+-- Initialize notification system
+Alc.NotifySystem = Alc:NewNotify()
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
 
