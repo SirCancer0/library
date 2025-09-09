@@ -43,10 +43,11 @@ function Alc:Notify(title, text, duration)
 
     -- Notification container
     local NotifyGui = Instance.new("ScreenGui")
-    NotifyGui.Name = "Notify"
+    NotifyGui.Name = "Notify_" .. HttpService:GenerateGUID(false)
     NotifyGui.Parent = CoreGui
     NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     NotifyGui.IgnoreGuiInset = true
+    NotifyGui.ResetOnSpawn = false
 
     -- Main frame
     local Frame = Instance.new("Frame")
@@ -64,7 +65,7 @@ function Alc:Notify(title, text, duration)
     UICorner.Parent = Frame
 
     local UIStroke = Instance.new("UIStroke")
-    UIStroke.Color = Color3.fromRGB(5,188,244)
+    UIStroke.Color = Color3.fromRGB(5, 188, 244)
     UIStroke.Thickness = 2
     UIStroke.Transparency = 0.2
     UIStroke.Parent = Frame
@@ -86,7 +87,7 @@ function Alc:Notify(title, text, duration)
     TitleLabel.Size = UDim2.new(0.9, 0, 0.35, 0)
     TitleLabel.Font = Enum.Font.GothamBold
     TitleLabel.Text = tostring(title)
-    TitleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleLabel.TextScaled = true
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -121,21 +122,26 @@ function Alc:Notify(title, text, duration)
     DropShadow.Size = UDim2.new(1, 24, 1, 24)
     DropShadow.BackgroundTransparency = 1
     DropShadow.Image = "rbxassetid://6015897843"
-    DropShadow.ImageColor3 = Color3.fromRGB(0,0,0)
+    DropShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
     DropShadow.ImageTransparency = 0.7
     DropShadow.ZIndex = 0
 
     -- Animate in
     Frame.Position = UDim2.new(0.5, 0, 0, -80)
-    TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0.08, 0)}):Play()
+    local tweenIn = TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0.08, 0)})
+    tweenIn:Play()
 
     -- Animate out after duration
     task.spawn(function()
         task.wait(duration)
-        TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0, -80)}):Play()
-        task.wait(0.45)
-        NotifyGui:Destroy()
+        local tweenOut = TweenService:Create(Frame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5, 0, 0, -80)})
+        tweenOut:Play()
+        tweenOut.Completed:Connect(function()
+            NotifyGui:Destroy()
+        end)
     end)
+    
+    return NotifyGui
 end
 
 --------------------------------------------------------------------------------------
